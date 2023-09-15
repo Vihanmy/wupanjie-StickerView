@@ -1,4 +1,4 @@
-package com.xiaopo.flying.sticker;
+package com.xiaopo.flying.sticker.sticker.protocol;
 
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -9,6 +9,9 @@ import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.xiaopo.flying.sticker.StickerUtils;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

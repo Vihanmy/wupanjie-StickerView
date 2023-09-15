@@ -5,6 +5,10 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.IntDef;
 import android.view.MotionEvent;
+
+import com.xiaopo.flying.sticker.iconevent.protocol.StickerIconEvent;
+import com.xiaopo.flying.sticker.sticker.DrawableSticker;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

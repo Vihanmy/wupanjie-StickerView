@@ -2,7 +2,7 @@ package com.xiaopo.flying.stickerview;
 
 import android.view.MotionEvent;
 import android.widget.Toast;
-import com.xiaopo.flying.sticker.StickerIconEvent;
+import com.xiaopo.flying.sticker.iconevent.protocol.StickerIconEvent;
 import com.xiaopo.flying.sticker.StickerView;
 
 /**

@@ -1,4 +1,4 @@
-package com.xiaopo.flying.sticker;
+package com.xiaopo.flying.sticker.sticker;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -15,6 +15,9 @@ import android.support.v4.content.ContextCompat;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+
+import com.xiaopo.flying.sticker.R;
+import com.xiaopo.flying.sticker.sticker.protocol.Sticker;
 
 /**
  * Customize your sticker with text and image background.

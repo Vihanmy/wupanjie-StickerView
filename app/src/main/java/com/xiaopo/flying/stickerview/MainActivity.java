@@ -17,13 +17,13 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.xiaopo.flying.sticker.BitmapStickerIcon;
-import com.xiaopo.flying.sticker.DeleteIconEvent;
-import com.xiaopo.flying.sticker.DrawableSticker;
-import com.xiaopo.flying.sticker.FlipHorizontallyEvent;
-import com.xiaopo.flying.sticker.Sticker;
+import com.xiaopo.flying.sticker.iconevent.DeleteIconEvent;
+import com.xiaopo.flying.sticker.sticker.DrawableSticker;
+import com.xiaopo.flying.sticker.iconevent.FlipHorizontallyEvent;
+import com.xiaopo.flying.sticker.sticker.protocol.Sticker;
 import com.xiaopo.flying.sticker.StickerView;
-import com.xiaopo.flying.sticker.TextSticker;
-import com.xiaopo.flying.sticker.ZoomIconEvent;
+import com.xiaopo.flying.sticker.sticker.TextSticker;
+import com.xiaopo.flying.sticker.iconevent.ZoomIconEvent;
 import com.xiaopo.flying.stickerview.util.FileUtil;
 
 import java.io.File;

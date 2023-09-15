@@ -21,6 +21,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
+
+import com.xiaopo.flying.sticker.iconevent.DeleteIconEvent;
+import com.xiaopo.flying.sticker.iconevent.FlipHorizontallyEvent;
+import com.xiaopo.flying.sticker.iconevent.ZoomIconEvent;
+import com.xiaopo.flying.sticker.sticker.protocol.Sticker;
+
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -51,7 +57,8 @@ public class StickerView extends FrameLayout {
   }
 
   @IntDef(flag = true, value = { FLIP_HORIZONTALLY, FLIP_VERTICALLY })
-  @Retention(RetentionPolicy.SOURCE) protected @interface Flip {
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface Flip {
   }
 
   private static final String TAG = "StickerView";

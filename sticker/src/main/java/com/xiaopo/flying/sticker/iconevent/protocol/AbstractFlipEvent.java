@@ -1,6 +1,8 @@
-package com.xiaopo.flying.sticker;
+package com.xiaopo.flying.sticker.iconevent.protocol;
 
 import android.view.MotionEvent;
+
+import com.xiaopo.flying.sticker.StickerView;
 
 public abstract class AbstractFlipEvent implements StickerIconEvent {
 
