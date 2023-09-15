@@ -309,9 +309,12 @@ public class StickerView extends FrameLayout {
 
                 midPoint = calculateMidPoint(event);
 
-                if (handlingSticker != null && isInStickerArea(handlingSticker, event.getX(1),
-                        event.getY(1)) && findCurrentIconTouched() == null) {
-                    currentMode = ActionMode.ZOOM_WITH_TWO_FINGER;
+                if (
+                        handlingSticker != null
+                                && isInStickerArea(handlingSticker, event.getX(1), event.getY(1))
+                                && findCurrentIconTouched() == null
+                ) {
+                    currentMode = ActionMode.ZOOM_WITH_TWO_FINGER;   ///█ 判定为双指
                 }
                 break;
 
@@ -330,7 +333,7 @@ public class StickerView extends FrameLayout {
                         onStickerOperationListener.onStickerZoomFinished(handlingSticker);
                     }
                 }
-                currentMode = ActionMode.NONE;
+                currentMode = ActionMode.NONE; //█ 多指事件结束
                 break;
         }
 
@@ -338,34 +341,40 @@ public class StickerView extends FrameLayout {
     }
 
     /**
+     * 初始化操作 + 判断是否点击到了某个 sticker 的区域
+     *
      * @param event MotionEvent received from {@link #onTouchEvent)
      * @return true if has touch something
      */
     protected boolean onTouchDown(@NonNull MotionEvent event) {
-        currentMode = ActionMode.DRAG;
+        currentMode = ActionMode.DRAG;  //█ 事件开始, 预设为拖拽
 
         downX = event.getX();
         downY = event.getY();
 
-        midPoint = calculateMidPoint();
-        oldDistance = calculateDistance(midPoint.x, midPoint.y, downX, downY);
-        oldRotation = calculateRotation(midPoint.x, midPoint.y, downX, downY);
+        midPoint = calculateMidPoint();         // 显示的Sticker中心, 在StickerView坐标系中的坐标
+        oldDistance = calculateDistance(midPoint.x, midPoint.y, downX, downY);  //开始触摸点与sticker显示中心的初始距离
+        oldRotation = calculateRotation(midPoint.x, midPoint.y, downX, downY);  //开始触摸点与sticker显示中心的初始角度
 
+        //【】确定点击的是sticker还是四周的触摸描点
         currentIcon = findCurrentIconTouched();
         if (currentIcon != null) {
-            currentMode = ActionMode.ICON;
+            currentMode = ActionMode.ICON; //█ 判定点击的为控制点
             currentIcon.onActionDown(this, event);
         } else {
             handlingSticker = findHandlingSticker();
         }
 
+        //【】
         if (handlingSticker != null) {
             downMatrix.set(handlingSticker.getMatrix());
+
             if (bringToFrontCurrentSticker) {
-                stickers.remove(handlingSticker);
+                stickers.remove(handlingSticker);  //点击后是否将sticker移动到顶层
                 stickers.add(handlingSticker);
             }
-            if (onStickerOperationListener != null) {
+
+            if (onStickerOperationListener != null) {  //sticker被点击的事件
                 onStickerOperationListener.onStickerTouchedDown(handlingSticker);
             }
         }
@@ -388,7 +397,7 @@ public class StickerView extends FrameLayout {
                 && Math.abs(event.getX() - downX) < touchSlop
                 && Math.abs(event.getY() - downY) < touchSlop
                 && handlingSticker != null) {
-            currentMode = ActionMode.CLICK;
+            currentMode = ActionMode.CLICK; //█ 判定为点击
             if (onStickerOperationListener != null) {
                 onStickerOperationListener.onStickerClicked(handlingSticker);
             }
@@ -405,7 +414,7 @@ public class StickerView extends FrameLayout {
             }
         }
 
-        currentMode = ActionMode.NONE;
+        currentMode = ActionMode.NONE; //█ 单指事件结束
         lastClickTime = currentTime;
     }
 
@@ -539,6 +548,11 @@ public class StickerView extends FrameLayout {
             midPoint.set(0, 0);
             return midPoint;
         }
+        /*
+         * midPoint  : midPoint 经过转换后在 StickerView 中的坐标
+         * point     : midPoint 经过转换后在 StickerView 中的坐标
+         * tmp       :
+         */
         handlingSticker.getMappedCenterPoint(midPoint, point, tmp);
         return midPoint;
     }
