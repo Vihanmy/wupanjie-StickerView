@@ -1,4 +1,15 @@
+
+
+# Overview
+
+这个仓库来自 [StickerView][https://github.com/wuapnjie/StickerView], 自己克隆了一份用于学习, 对于使用`Matrix`进行几何变换和手势检测很有学习的意义. 我在原始仓库的基础上升级了gradle和agp的版本,引入了kotlin, 进行了一些注释, 代码格式化和案例代码的书写.
+
+
+
+
+
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-StickerView-brightgreen.svg?style=flat)]() 
+
 StickerView
 =========
 
@@ -93,3 +104,5 @@ limitations under the License.
 ```
 
 
+
+[https://github.com/wuapnjie/StickerView]: 
