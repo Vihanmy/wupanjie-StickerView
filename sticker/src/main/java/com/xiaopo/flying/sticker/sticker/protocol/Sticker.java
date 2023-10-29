@@ -46,19 +46,11 @@ public abstract class Sticker {
     private boolean isFlippedHorizontally;
     private boolean isFlippedVertically;
 
-    /////////////////////////////////////////////////////////
-    public boolean isFlippedHorizontally() {
-        return isFlippedHorizontally;
-    }
 
     @NonNull
     public Sticker setFlippedHorizontally(boolean flippedHorizontally) {
         isFlippedHorizontally = flippedHorizontally;
         return this;
-    }
-
-    public boolean isFlippedVertically() {
-        return isFlippedVertically;
     }
 
     @NonNull
@@ -67,17 +59,25 @@ public abstract class Sticker {
         return this;
     }
 
-    @NonNull
-    public Matrix getMatrix() {
-        return matrix;
-    }
-
     public Sticker setMatrix(@Nullable Matrix matrix) {
         this.matrix.set(matrix);
         return this;
     }
 
-    /////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////// getters
+    public boolean isFlippedHorizontally() {
+        return isFlippedHorizontally;
+    }
+
+    public boolean isFlippedVertically() {
+        return isFlippedVertically;
+    }
+
+    @NonNull
+    public Matrix getMatrix() {
+        return matrix;
+    }
+
     public float[] getBoundPoints() {
         float[] points = new float[8];
         getBoundPoints(points);
@@ -237,6 +237,15 @@ public abstract class Sticker {
         return matrixValues[valueIndex];
     }
 
+    ///////////////////////////////////////////////////////// utils
+
+    /**
+     * 判断某个坐标值是否是在当前 sticker 描述的范围中
+     *
+     * @param x StickerView 中的x轴坐标值
+     * @param y StickerView 中的y轴坐标值
+     * @return 判断结果
+     */
     public boolean contains(float x, float y) {
         return contains(new float[]{x, y});
     }

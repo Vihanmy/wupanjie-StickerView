@@ -237,7 +237,7 @@ public class StickerView extends FrameLayout {
 
             //draw icons
             if (showIcons) {
-                float rotation = calculateRotation(x4, y4, x3, y3);
+                float rotation = StickerUtil.INSTANCE.calculateRotation(x4, y4, x3, y3);
                 for (int i = 0; i < icons.size(); i++) {
                     BitmapStickerIcon icon = icons.get(i);
                     switch (icon.getPosition()) {
@@ -304,14 +304,14 @@ public class StickerView extends FrameLayout {
                 }
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
-                oldDistance = calculateDistance(event);
-                oldRotation = calculateRotation(event);
+                oldDistance = StickerUtil.INSTANCE.calculateDistance(event);
+                oldRotation = StickerUtil.INSTANCE.calculateRotation(event);
 
-                midPoint = calculateMidPoint(event);
+                midPoint = StickerUtil.INSTANCE.calculateMidPoint(event, midPoint);
 
                 if (
                         handlingSticker != null
-                                && isInStickerArea(handlingSticker, event.getX(1), event.getY(1))
+                                && handlingSticker.contains(event.getX(1), event.getY(1))
                                 && findCurrentIconTouched() == null
                 ) {
                     currentMode = ActionMode.ZOOM_WITH_TWO_FINGER;   ///█ 判定为双指
@@ -353,8 +353,8 @@ public class StickerView extends FrameLayout {
         downY = event.getY();
 
         midPoint = calculateMidPoint();         // 显示的Sticker中心, 在StickerView坐标系中的坐标
-        oldDistance = calculateDistance(midPoint.x, midPoint.y, downX, downY);  //开始触摸点与sticker显示中心的初始距离
-        oldRotation = calculateRotation(midPoint.x, midPoint.y, downX, downY);  //开始触摸点与sticker显示中心的初始角度
+        oldDistance = StickerUtil.INSTANCE.calculateDistance(midPoint.x, midPoint.y, downX, downY);  //开始触摸点与sticker显示中心的初始距离
+        oldRotation = StickerUtil.INSTANCE.calculateRotation(midPoint.x, midPoint.y, downX, downY);  //开始触摸点与sticker显示中心的初始角度
 
         //【】确定点击的是sticker还是四周的触摸描点
         currentIcon = findCurrentIconTouched();
@@ -435,8 +435,8 @@ public class StickerView extends FrameLayout {
                 break;
             case ActionMode.ZOOM_WITH_TWO_FINGER:
                 if (handlingSticker != null) {
-                    float newDistance = calculateDistance(event);
-                    float newRotation = calculateRotation(event);
+                    float newDistance = StickerUtil.INSTANCE.calculateDistance(event);
+                    float newRotation = StickerUtil.INSTANCE.calculateRotation(event);
 
                     moveMatrix.set(downMatrix);
                     moveMatrix.postScale(newDistance / oldDistance, newDistance / oldDistance, midPoint.x,
@@ -461,8 +461,8 @@ public class StickerView extends FrameLayout {
 
     public void zoomAndRotateSticker(@Nullable Sticker sticker, @NonNull MotionEvent event) {
         if (sticker != null) {
-            float newDistance = calculateDistance(midPoint.x, midPoint.y, event.getX(), event.getY());
-            float newRotation = calculateRotation(midPoint.x, midPoint.y, event.getX(), event.getY());
+            float newDistance = StickerUtil.INSTANCE.calculateDistance(midPoint.x, midPoint.y, event.getX(), event.getY());
+            float newRotation = StickerUtil.INSTANCE.calculateRotation(midPoint.x, midPoint.y, event.getX(), event.getY());
 
             moveMatrix.set(downMatrix);
             moveMatrix.postScale(newDistance / oldDistance, newDistance / oldDistance, midPoint.x,
@@ -517,29 +517,11 @@ public class StickerView extends FrameLayout {
     @Nullable
     protected Sticker findHandlingSticker() {
         for (int i = stickers.size() - 1; i >= 0; i--) {
-            if (isInStickerArea(stickers.get(i), downX, downY)) {
+            if (stickers.get(i).contains(downX, downY)) {
                 return stickers.get(i);
             }
         }
         return null;
-    }
-
-    protected boolean isInStickerArea(@NonNull Sticker sticker, float downX, float downY) {
-        tmp[0] = downX;
-        tmp[1] = downY;
-        return sticker.contains(tmp);
-    }
-
-    @NonNull
-    protected PointF calculateMidPoint(@Nullable MotionEvent event) {
-        if (event == null || event.getPointerCount() < 2) {
-            midPoint.set(0, 0);
-            return midPoint;
-        }
-        float x = (event.getX(0) + event.getX(1)) / 2;
-        float y = (event.getY(0) + event.getY(1)) / 2;
-        midPoint.set(x, y);
-        return midPoint;
     }
 
     @NonNull
@@ -557,39 +539,6 @@ public class StickerView extends FrameLayout {
         return midPoint;
     }
 
-    /**
-     * calculate rotation in line with two fingers and x-axis
-     **/
-    protected float calculateRotation(@Nullable MotionEvent event) {
-        if (event == null || event.getPointerCount() < 2) {
-            return 0f;
-        }
-        return calculateRotation(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
-    }
-
-    protected float calculateRotation(float x1, float y1, float x2, float y2) {
-        double x = x1 - x2;
-        double y = y1 - y2;
-        double radians = Math.atan2(y, x);
-        return (float) Math.toDegrees(radians);
-    }
-
-    /**
-     * calculate Distance in two fingers
-     **/
-    protected float calculateDistance(@Nullable MotionEvent event) {
-        if (event == null || event.getPointerCount() < 2) {
-            return 0f;
-        }
-        return calculateDistance(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
-    }
-
-    protected float calculateDistance(float x1, float y1, float x2, float y2) {
-        double x = x1 - x2;
-        double y = y1 - y2;
-
-        return (float) Math.sqrt(x * x + y * y);
-    }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
@@ -799,21 +748,6 @@ public class StickerView extends FrameLayout {
         sticker.getMatrix().postTranslate(offsetX, offsetY);
     }
 
-    @NonNull
-    public float[] getStickerPoints(@Nullable Sticker sticker) {
-        float[] points = new float[8];
-        getStickerPoints(sticker, points);
-        return points;
-    }
-
-    public void getStickerPoints(@Nullable Sticker sticker, @NonNull float[] dst) {
-        if (sticker == null) {
-            Arrays.fill(dst, 0);
-            return;
-        }
-        sticker.getBoundPoints(bounds);
-        sticker.getMappedPoints(dst, bounds);
-    }
 
     public void save(@NonNull File file) {
         try {
@@ -833,17 +767,6 @@ public class StickerView extends FrameLayout {
         return bitmap;
     }
 
-    public int getStickerCount() {
-        return stickers.size();
-    }
-
-    public boolean isNoneSticker() {
-        return getStickerCount() == 0;
-    }
-
-    public boolean isLocked() {
-        return locked;
-    }
 
     @NonNull
     public StickerView setLocked(boolean locked) {
@@ -858,14 +781,6 @@ public class StickerView extends FrameLayout {
         return this;
     }
 
-    public int getMinClickDelayTime() {
-        return minClickDelayTime;
-    }
-
-    public boolean isConstrained() {
-        return constrained;
-    }
-
     @NonNull
     public StickerView setConstrained(boolean constrained) {
         this.constrained = constrained;
@@ -878,6 +793,17 @@ public class StickerView extends FrameLayout {
             @Nullable OnStickerOperationListener onStickerOperationListener) {
         this.onStickerOperationListener = onStickerOperationListener;
         return this;
+    }
+
+    public void setIcons(@NonNull List<BitmapStickerIcon> icons) {
+        this.icons.clear();
+        this.icons.addAll(icons);
+        invalidate();
+    }
+
+    ///////////////////////////////////////////////////////// getters
+    public int getStickerCount() {
+        return stickers.size();
     }
 
     @Nullable
@@ -895,12 +821,39 @@ public class StickerView extends FrameLayout {
         return icons;
     }
 
-    public void setIcons(@NonNull List<BitmapStickerIcon> icons) {
-        this.icons.clear();
-        this.icons.addAll(icons);
-        invalidate();
+    public int getMinClickDelayTime() {
+        return minClickDelayTime;
     }
 
+    public boolean isConstrained() {
+        return constrained;
+    }
+
+    public boolean isNoneSticker() {
+        return getStickerCount() == 0;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    @NonNull
+    public float[] getStickerPoints(@Nullable Sticker sticker) {
+        float[] points = new float[8];
+        getStickerPoints(sticker, points);
+        return points;
+    }
+
+    public void getStickerPoints(@Nullable Sticker sticker, @NonNull float[] dst) {
+        if (sticker == null) {
+            Arrays.fill(dst, 0);
+            return;
+        }
+        sticker.getBoundPoints(bounds);
+        sticker.getMappedPoints(dst, bounds);
+    }
+
+    ///////////////////////////////////////////////////////// event listener
     public interface OnStickerOperationListener {
         void onStickerAdded(@NonNull Sticker sticker);
 
