@@ -16,7 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.xiaopo.flying.sticker.BitmapStickerIcon;
+import com.xiaopo.flying.sticker.stickericon.BitmapStickerIcon;
 import com.xiaopo.flying.sticker.iconevent.DeleteIconEvent;
 import com.xiaopo.flying.sticker.sticker.DrawableSticker;
 import com.xiaopo.flying.sticker.iconevent.FlipHorizontallyEvent;
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     BitmapStickerIcon zoomIcon = new BitmapStickerIcon(ContextCompat.getDrawable(this,
             com.xiaopo.flying.sticker.R.drawable.sticker_ic_scale_white_18dp),
-            BitmapStickerIcon.RIGHT_BOTOM);
+            BitmapStickerIcon.RIGHT_BOTTOM);
     zoomIcon.setIconEvent(new ZoomIconEvent());
 
     BitmapStickerIcon flipIcon = new BitmapStickerIcon(ContextCompat.getDrawable(this,

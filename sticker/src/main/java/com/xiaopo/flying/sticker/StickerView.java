@@ -26,6 +26,7 @@ import com.xiaopo.flying.sticker.iconevent.DeleteIconEvent;
 import com.xiaopo.flying.sticker.iconevent.FlipHorizontallyEvent;
 import com.xiaopo.flying.sticker.iconevent.ZoomIconEvent;
 import com.xiaopo.flying.sticker.sticker.protocol.Sticker;
+import com.xiaopo.flying.sticker.stickericon.BitmapStickerIcon;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -150,7 +151,7 @@ public class StickerView extends FrameLayout {
         deleteIcon.setIconEvent(new DeleteIconEvent());
         BitmapStickerIcon zoomIcon = new BitmapStickerIcon(
                 ContextCompat.getDrawable(getContext(), R.drawable.sticker_ic_scale_white_18dp),
-                BitmapStickerIcon.RIGHT_BOTOM);
+                BitmapStickerIcon.RIGHT_BOTTOM);
         zoomIcon.setIconEvent(new ZoomIconEvent());
         BitmapStickerIcon flipIcon = new BitmapStickerIcon(
                 ContextCompat.getDrawable(getContext(), R.drawable.sticker_ic_flip_white_18dp),
@@ -254,7 +255,7 @@ public class StickerView extends FrameLayout {
                             configIconMatrix(icon, x3, y3, rotation);
                             break;
 
-                        case BitmapStickerIcon.RIGHT_BOTOM:
+                        case BitmapStickerIcon.RIGHT_BOTTOM:
                             configIconMatrix(icon, x4, y4, rotation);
                             break;
                     }
