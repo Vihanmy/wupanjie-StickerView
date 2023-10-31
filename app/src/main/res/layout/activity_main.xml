@@ -28,10 +28,12 @@
       app:showIcons="true"
       >
 
+<!--
+android:src="@drawable/haizewang_90"
+-->
     <uk.co.senab.photoview.PhotoView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/haizewang_90"
         />
 
     <ImageView
