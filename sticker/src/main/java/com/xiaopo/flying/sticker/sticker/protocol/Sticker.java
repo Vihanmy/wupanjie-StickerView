@@ -84,6 +84,9 @@ public abstract class Sticker {
         return points;
     }
 
+    /**
+     * 左上,右上,坐下, 右下 四个角的坐标
+     */
     public void getBoundPoints(@NonNull float[] points) {
         if (!isFlippedHorizontally) {
             if (!isFlippedVertically) {

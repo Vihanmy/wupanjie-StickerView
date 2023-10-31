@@ -218,8 +218,9 @@ public class StickerView extends FrameLayout {
         //【】绘制框线和四周的触点
         if (handlingSticker != null && !locked && (showBorder || showIcons)) {
 
-            getStickerPoints(handlingSticker, bitmapPoints);
 
+            //计算四个角落点的坐标
+            getStickerPoints(handlingSticker, bitmapPoints);
             float x1 = bitmapPoints[0];
             float y1 = bitmapPoints[1];
             float x2 = bitmapPoints[2];
@@ -243,20 +244,31 @@ public class StickerView extends FrameLayout {
                     BitmapStickerIcon icon = icons.get(i);
                     switch (icon.getPosition()) {
                         case BitmapStickerIcon.LEFT_TOP:
-
                             configIconMatrix(icon, x1, y1, rotation);
                             break;
-
                         case BitmapStickerIcon.RIGHT_TOP:
                             configIconMatrix(icon, x2, y2, rotation);
                             break;
-
                         case BitmapStickerIcon.LEFT_BOTTOM:
                             configIconMatrix(icon, x3, y3, rotation);
                             break;
-
                         case BitmapStickerIcon.RIGHT_BOTTOM:
                             configIconMatrix(icon, x4, y4, rotation);
+                            break;
+
+
+                        //计算四个边中心点的坐标
+                        case BitmapStickerIcon.CENTER_TOP:
+                            configIconMatrix(icon, (x1 + x2) / 2f, (y1 + y2) / 2f, rotation);
+                            break;
+                        case BitmapStickerIcon.CENTER_RIGHT:
+                            configIconMatrix(icon, (x2 + x4) / 2f, (y2 + y4) / 2f, rotation);
+                            break;
+                        case BitmapStickerIcon.CENTER_LEFT:
+                            configIconMatrix(icon, (x1 + x3) / 2f, (y1 + y3) / 2f, rotation);
+                            break;
+                        case BitmapStickerIcon.CENTER_BOTTOM:
+                            configIconMatrix(icon, (x3 + x4) / 2f, (y3 + y4) / 2f, rotation);
                             break;
                     }
                     icon.draw(canvas, borderPaint);
