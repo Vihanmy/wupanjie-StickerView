@@ -218,7 +218,6 @@ public class StickerView extends FrameLayout {
         //【】绘制框线和四周的触点
         if (handlingSticker != null && !locked && (showBorder || showIcons)) {
 
-
             //计算四个角落点的坐标
             getStickerPoints(handlingSticker, bitmapPoints);
             float x1 = bitmapPoints[0];
@@ -482,6 +481,57 @@ public class StickerView extends FrameLayout {
                     midPoint.y);
             moveMatrix.postRotate(newRotation - oldRotation, midPoint.x, midPoint.y);
             handlingSticker.setMatrix(moveMatrix);
+        }
+    }
+
+    public void rotateSticker(@NonNull MotionEvent event) {
+        if (handlingSticker == null) return;
+
+        float newRotation = StickerUtil.INSTANCE.calculateRotation(midPoint.x, midPoint.y, event.getX(), event.getY());
+        moveMatrix.set(downMatrix);
+        moveMatrix.postRotate(newRotation - oldRotation, midPoint.x, midPoint.y);
+        handlingSticker.setMatrix(moveMatrix);
+    }
+
+    public void scale(@NonNull MotionEvent event, boolean isVertical) {
+        if (handlingSticker != null) {
+            //垂直拉伸
+            if (isVertical) {
+                float[] downMatrixValues = new float[9];
+                downMatrix.getValues(downMatrixValues);
+
+                // 从矩阵数值中提取旋转角度
+                float scaleX = downMatrixValues[Matrix.MSCALE_X];
+                float skewY = downMatrixValues[Matrix.MSKEW_Y];
+                double rAngle = Math.toDegrees(Math.atan2(skewY, scaleX));//当前旋转角度
+
+                float angle = StickerUtil.INSTANCE.calculateRotation(midPoint.x, midPoint.y, event.getX(), event.getY());//手指和图形中点连线角度
+                float newXDistance = (float) (StickerUtil.INSTANCE.calculateDistance(midPoint.x, midPoint.y, event.getX(), event.getY()) * Math.abs(Math.sin(-(angle - rAngle) * (Math.PI / 180))));
+                moveMatrix.set(downMatrix);
+                moveMatrix.postRotate(-(float) rAngle, midPoint.x, midPoint.y);
+                moveMatrix.postScale(1, newXDistance / oldDistance, midPoint.x, midPoint.y);
+                moveMatrix.postRotate((float) rAngle, midPoint.x, midPoint.y);
+                handlingSticker.setMatrix(moveMatrix);
+            }
+            //水平拉伸
+            else {
+                float[] downMatrixValues = new float[9];
+                downMatrix.getValues(downMatrixValues);
+
+                // 从矩阵数值中提取旋转角度
+                float scaleX = downMatrixValues[Matrix.MSCALE_X];
+                float skewY = downMatrixValues[Matrix.MSKEW_Y];
+                double rAngle = Math.toDegrees(Math.atan2(skewY, scaleX));//当前旋转角度
+
+                float angle = StickerUtil.INSTANCE.calculateRotation(midPoint.x, midPoint.y, event.getX(), event.getY());//手指和图形中点连线角度
+                float newXDistance = (float) (StickerUtil.INSTANCE.calculateDistance(midPoint.x, midPoint.y, event.getX(), event.getY()) * Math.abs(Math.cos(-(angle - rAngle) * (Math.PI / 180))));
+                moveMatrix.set(downMatrix);
+                moveMatrix.postRotate(-(float) rAngle, midPoint.x, midPoint.y);
+                moveMatrix.postScale(newXDistance / oldDistance, 1, midPoint.x, midPoint.y);
+                moveMatrix.postRotate((float) rAngle, midPoint.x, midPoint.y);
+                handlingSticker.setMatrix(moveMatrix);
+            }
+
         }
     }
 

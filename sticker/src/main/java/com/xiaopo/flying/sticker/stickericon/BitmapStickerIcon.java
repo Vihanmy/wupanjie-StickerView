@@ -46,7 +46,7 @@ public class BitmapStickerIcon extends DrawableSticker implements StickerIconEve
     public static final int CENTER_TOP = 1 << 7;
     public static final int CENTER_BOTTOM = 1 << 8;
 
-    private float iconRadius = DEFAULT_ICON_RADIUS;
+    final private float iconRadius = DEFAULT_ICON_RADIUS;
     private float iconExtraRadius = DEFAULT_ICON_EXTRA_RADIUS;
     private float x;
     private float y;
@@ -85,9 +85,9 @@ public class BitmapStickerIcon extends DrawableSticker implements StickerIconEve
         return iconRadius;
     }
 
-    public void setIconRadius(float iconRadius) {
-        this.iconRadius = iconRadius;
-    }
+//    public void setIconRadius(float iconRadius) {
+//        this.iconRadius = iconRadius;
+//    }
 
     public float getIconExtraRadius() {
         return iconExtraRadius;
@@ -137,11 +137,11 @@ public class BitmapStickerIcon extends DrawableSticker implements StickerIconEve
 
     @Override
     public int getHeight() {
-        return (int) DEFAULT_ICON_RADIUS;
+        return (int) iconRadius * 2;
     }
 
     @Override
     public int getWidth() {
-        return (int) DEFAULT_ICON_RADIUS;
+        return (int) iconRadius * 2;
     }
 }
