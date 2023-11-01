@@ -2,8 +2,10 @@ package com.xiaopo.flying.sticker.sticker.protocol;
 
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
@@ -243,14 +245,42 @@ public abstract class Sticker {
     ///////////////////////////////////////////////////////// utils
 
     /**
-     * 判断某个坐标值是否是在当前 sticker 描述的范围中
+     * 判断某个坐标值是否是在当前 sticker 显示的范围中
      *
      * @param x StickerView 中的x轴坐标值
      * @param y StickerView 中的y轴坐标值
      * @return 判断结果
      */
     public boolean contains(float x, float y) {
-        return contains(new float[]{x, y});
+        //return contains(new float[]{x, y});
+        // REFA: Vihanmy 优化这里的运算效率应该, 这里已经new了3个对象了
+        getMappedPoints(boundPoints, getBoundPoints());
+        float x1 = boundPoints[0];
+        float y1 = boundPoints[1];
+        float x2 = boundPoints[2];
+        float y2 = boundPoints[3];
+        float x3 = boundPoints[4];
+        float y3 = boundPoints[5];
+        float x4 = boundPoints[6];
+        float y4 = boundPoints[7];
+
+        Path path = new Path();
+        path.moveTo(x1, y1);
+        path.lineTo(x2, y2);
+        path.lineTo(x4, y4);
+        path.lineTo(x3, y3);
+        path.close();
+
+        RectF bounds = new RectF();
+        path.computeBounds(bounds, false);
+
+        Region clipRegion = new Region();
+        clipRegion.set((int) (bounds.left), (int) (bounds.top), (int) (bounds.right), (int) (bounds.bottom));
+
+        RectF rectF = getMappedBound();
+        Region re = new Region();
+        re.setPath(path, clipRegion);
+        return re.contains((int) x, (int) y);
     }
 
     public boolean contains(@NonNull float[] point) {
