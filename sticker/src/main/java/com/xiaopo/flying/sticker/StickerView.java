@@ -535,6 +535,98 @@ public class StickerView extends FrameLayout {
         }
     }
 
+
+    public void scaleByDirection(@NonNull MotionEvent event, @Sticker.Position int direction) {
+
+        int scaleCenterX = 0;
+        int scaleCenterY = 0;
+
+        //计算四个角落点的坐标
+        float[] bitmapPoints = handlingSticker.getMappedBoundPoints();
+        float x1 = bitmapPoints[0];
+        float y1 = bitmapPoints[1];
+        float x2 = bitmapPoints[2];
+        float y2 = bitmapPoints[3];
+        float x3 = bitmapPoints[4];
+        float y3 = bitmapPoints[5];
+        float x4 = bitmapPoints[6];
+        float y4 = bitmapPoints[7];
+
+
+        switch (direction) {
+
+            case Sticker.Position.BOTTOM:
+                scaleCenterX = (int) ((x1 + x1) / 2f);
+                scaleCenterY = (int) ((y1 + y2) / 2f);
+                break;
+
+            case Sticker.Position.TOP:
+                scaleCenterX = (int) ((x3 + x4) / 2f);
+                scaleCenterY = (int) ((y3 + y4) / 2f);
+                break;
+
+            case Sticker.Position.LEFT:
+                scaleCenterX = (int) ((x2 + x4) / 2f);
+                scaleCenterY = (int) ((y2 + y4) / 2f);
+                break;
+
+            case Sticker.Position.RIGHT:
+                scaleCenterX = (int) ((x1 + x3) / 2f);
+                scaleCenterY = (int) ((y1 + y3) / 2f);
+                break;
+
+            case Sticker.Position.CENTER:
+                break;
+        }
+
+        float[] downMatrixValues = new float[9];
+        downMatrix.getValues(downMatrixValues);
+
+        // 从矩阵数值中提取旋转角度
+        float scaleX = downMatrixValues[Matrix.MSCALE_X];
+        float skewY = downMatrixValues[Matrix.MSKEW_Y];
+        double rAngle = Math.toDegrees(Math.atan2(skewY, scaleX));//当前旋转角度
+
+        int downDistance = (int) StickerUtil.INSTANCE.calculateDistance(scaleCenterX, scaleCenterY, downX, downY);
+        float angle = StickerUtil.INSTANCE.calculateRotation(scaleCenterX, scaleCenterY, event.getX(), event.getY());//手指和图形中点连线角度
+        float newXDistance = (float) (StickerUtil.INSTANCE.calculateDistance(scaleCenterX, scaleCenterY, event.getX(), event.getY()) * Math.abs(Math.cos(-(angle - rAngle) * (Math.PI / 180))));
+
+
+        float scale_X = newXDistance / downDistance;
+        float scale_Y = 1f;
+
+        switch (direction) {
+
+            case Sticker.Position.BOTTOM:
+
+                break;
+
+            case Sticker.Position.TOP:
+
+                break;
+
+            case Sticker.Position.LEFT:
+                scale_X = newXDistance / downDistance;
+                scale_Y = 1f;
+                break;
+
+            case Sticker.Position.RIGHT:
+                scale_X = newXDistance / downDistance;
+                scale_Y = 1f;
+                break;
+
+            case Sticker.Position.CENTER:
+                break;
+        }
+
+
+        moveMatrix.set(downMatrix);
+        moveMatrix.postRotate(-(float) rAngle, scaleCenterX, scaleCenterY);
+        moveMatrix.postScale(scale_X, scale_Y, scaleCenterX, scaleCenterY);
+        moveMatrix.postRotate((float) rAngle, scaleCenterX, scaleCenterY);
+        handlingSticker.setMatrix(moveMatrix);
+    }
+
     protected void constrainSticker(@NonNull Sticker sticker) {
         float moveX = 0;
         float moveY = 0;
