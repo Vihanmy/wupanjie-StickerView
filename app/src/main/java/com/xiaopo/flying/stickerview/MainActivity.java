@@ -17,6 +17,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.xiaopo.flying.sticker.iconevent.FlipVerticallyEvent;
+import com.xiaopo.flying.sticker.iconevent.HorizontalScaleEvent;
+import com.xiaopo.flying.sticker.iconevent.RotateEvent;
+import com.xiaopo.flying.sticker.iconevent.VerticalScaleEvent;
 import com.xiaopo.flying.sticker.stickericon.BitmapStickerIcon;
 import com.xiaopo.flying.sticker.iconevent.DeleteIconEvent;
 import com.xiaopo.flying.sticker.sticker.DrawableSticker;
@@ -73,7 +76,32 @@ public class MainActivity extends AppCompatActivity {
                 BitmapStickerIcon.CENTER_BOTTOM);
         verticalFlip.setIconEvent(new FlipVerticallyEvent());
 
-        stickerView.setIcons(Arrays.asList(deleteIcon, zoomIcon, flipIcon, heartIcon, verticalFlip));
+        BitmapStickerIcon horizontalScale = new BitmapStickerIcon(ContextCompat.getDrawable(this,
+                com.xiaopo.flying.sticker.R.drawable.st_ic_scale_horizontal),
+                BitmapStickerIcon.CENTER_RIGHT);
+        horizontalScale.setIconEvent(new HorizontalScaleEvent());
+
+        BitmapStickerIcon verticalScale = new BitmapStickerIcon(ContextCompat.getDrawable(this,
+                com.xiaopo.flying.sticker.R.drawable.st_ic_scale_vertical),
+                BitmapStickerIcon.CENTER_TOP);
+        verticalScale.setIconEvent(new VerticalScaleEvent());
+
+        BitmapStickerIcon rotate = new BitmapStickerIcon(ContextCompat.getDrawable(this,
+                com.xiaopo.flying.sticker.R.drawable.st_ic_rotate),
+                BitmapStickerIcon.CENTER_LEFT);
+        rotate.setIconEvent(new RotateEvent());
+
+        stickerView.setIcons(
+                Arrays.asList(
+                        deleteIcon,
+                        zoomIcon,
+                        flipIcon,
+                        heartIcon,
+                        verticalFlip,
+                        horizontalScale,
+                        verticalScale,
+                        rotate
+                ));
 
         //default icon layout
         //stickerView.configDefaultIcons();
