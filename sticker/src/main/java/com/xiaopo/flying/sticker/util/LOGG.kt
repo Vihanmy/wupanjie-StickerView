@@ -13,7 +13,7 @@ private const val TIME_TAG = ""
  * desc   :
  * ```
  */
-object LOGG {
+internal object LOGG {
     @Deprecated("使用debug代替", ReplaceWith("debug(tag, msg)"))
     fun d(tag: String, msg: String) {
         Log.d(tag, msg)
@@ -64,7 +64,7 @@ object LOGG {
  * desc   :
  * ```
  */
-inline fun runLogPrint(block: LOGG.() -> Unit) {
+internal inline fun runLogPrint(block: LOGG.() -> Unit) {
     tryIt {
         block.invoke(LOGG)
     }

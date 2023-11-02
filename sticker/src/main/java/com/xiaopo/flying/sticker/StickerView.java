@@ -27,6 +27,8 @@ import com.xiaopo.flying.sticker.iconevent.FlipHorizontallyEvent;
 import com.xiaopo.flying.sticker.iconevent.ZoomIconEvent;
 import com.xiaopo.flying.sticker.sticker.protocol.Sticker;
 import com.xiaopo.flying.sticker.stickericon.BitmapStickerIcon;
+import com.xiaopo.flying.sticker.util.LOGG;
+import com.xiaopo.flying.sticker.util.MatrixUtilKt;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -64,6 +66,8 @@ public class StickerView extends FrameLayout {
     @Retention(RetentionPolicy.SOURCE)
     public @interface Flip {
     }
+
+    private final float[] handingStickerDownBoundsPoints = new float[8];  //手指按下时,选中图层在画布中的显示范围四个角的落脚点
 
     private static final String TAG = "StickerView";
 
@@ -389,6 +393,7 @@ public class StickerView extends FrameLayout {
             if (onStickerOperationListener != null) {  //sticker被点击的事件
                 onStickerOperationListener.onStickerTouchedDown(handlingSticker);
             }
+            handlingSticker.getMappedPoints(handingStickerDownBoundsPoints, handlingSticker.getBoundPoints());
         }
 
         if (currentIcon == null && handlingSticker == null) {
@@ -536,27 +541,29 @@ public class StickerView extends FrameLayout {
     }
 
 
+    /**
+     * 在单个方向上进行缩放
+     */
     public void scaleByDirection(@NonNull MotionEvent event, @Sticker.Position int direction) {
+
+        //【】计算中心点
+        //计算四个角落点的坐标
+        float x1 = handingStickerDownBoundsPoints[0];
+        float y1 = handingStickerDownBoundsPoints[1];
+        float x2 = handingStickerDownBoundsPoints[2];
+        float y2 = handingStickerDownBoundsPoints[3];
+        float x3 = handingStickerDownBoundsPoints[4];
+        float y3 = handingStickerDownBoundsPoints[5];
+        float x4 = handingStickerDownBoundsPoints[6];
+        float y4 = handingStickerDownBoundsPoints[7];
+
 
         int scaleCenterX = 0;
         int scaleCenterY = 0;
-
-        //计算四个角落点的坐标
-        float[] bitmapPoints = handlingSticker.getMappedBoundPoints();
-        float x1 = bitmapPoints[0];
-        float y1 = bitmapPoints[1];
-        float x2 = bitmapPoints[2];
-        float y2 = bitmapPoints[3];
-        float x3 = bitmapPoints[4];
-        float y3 = bitmapPoints[5];
-        float x4 = bitmapPoints[6];
-        float y4 = bitmapPoints[7];
-
-
         switch (direction) {
 
             case Sticker.Position.BOTTOM:
-                scaleCenterX = (int) ((x1 + x1) / 2f);
+                scaleCenterX = (int) ((x1 + x2) / 2f);
                 scaleCenterY = (int) ((y1 + y2) / 2f);
                 break;
 
@@ -579,39 +586,47 @@ public class StickerView extends FrameLayout {
                 break;
         }
 
-        float[] downMatrixValues = new float[9];
-        downMatrix.getValues(downMatrixValues);
 
-        // 从矩阵数值中提取旋转角度
-        float scaleX = downMatrixValues[Matrix.MSCALE_X];
-        float skewY = downMatrixValues[Matrix.MSKEW_Y];
-        double rAngle = Math.toDegrees(Math.atan2(skewY, scaleX));//当前旋转角度
+        //【】从矩阵中提取当前旋转角度
+        double rotateAngle = MatrixUtilKt.getRotateAngle(downMatrix);
 
-        int downDistance = (int) StickerUtil.INSTANCE.calculateDistance(scaleCenterX, scaleCenterY, downX, downY);
-        float angle = StickerUtil.INSTANCE.calculateRotation(scaleCenterX, scaleCenterY, event.getX(), event.getY());//手指和图形中点连线角度
-        float newXDistance = (float) (StickerUtil.INSTANCE.calculateDistance(scaleCenterX, scaleCenterY, event.getX(), event.getY()) * Math.abs(Math.cos(-(angle - rAngle) * (Math.PI / 180))));
+        //【】手指和旋转中心连线的角度
+        float angle = StickerUtil.INSTANCE.calculateRotation(scaleCenterX, scaleCenterY, event.getX(), event.getY());
 
+        //【】从角度计算手指拖动的分量
+        double directionWeight = 1f;
+        switch (direction) {
+            case Sticker.Position.BOTTOM:
+            case Sticker.Position.TOP:
+                directionWeight = Math.abs(Math.sin(-(angle - rotateAngle) * (Math.PI / 180)));
+                break;
 
-        float scale_X = newXDistance / downDistance;
+            case Sticker.Position.LEFT:
+            case Sticker.Position.RIGHT:
+                directionWeight = Math.abs(Math.cos(-(angle - rotateAngle) * (Math.PI / 180)));
+                break;
+
+            case Sticker.Position.CENTER:
+                break;
+        }
+
+        //【】计算当前单个方向上的缩放
+        int downDistance = (int) (StickerUtil.INSTANCE.calculateDistance(scaleCenterX, scaleCenterY, downX, downY) * 1); // TODO: Vihanmy 2023-11-02 为什么这里使用分量后, 反而效果不好
+        float nowDistance = (float) (StickerUtil.INSTANCE.calculateDistance(scaleCenterX, scaleCenterY, event.getX(), event.getY()) * directionWeight);
+        float scale_X = nowDistance / downDistance;
         float scale_Y = 1f;
 
         switch (direction) {
 
             case Sticker.Position.BOTTOM:
-
-                break;
-
             case Sticker.Position.TOP:
-
+                scale_X = 1f;
+                scale_Y = nowDistance / downDistance;
                 break;
 
             case Sticker.Position.LEFT:
-                scale_X = newXDistance / downDistance;
-                scale_Y = 1f;
-                break;
-
             case Sticker.Position.RIGHT:
-                scale_X = newXDistance / downDistance;
+                scale_X = nowDistance / downDistance;
                 scale_Y = 1f;
                 break;
 
@@ -619,12 +634,23 @@ public class StickerView extends FrameLayout {
                 break;
         }
 
-
+        //【】使用矩阵进行图形变化
         moveMatrix.set(downMatrix);
-        moveMatrix.postRotate(-(float) rAngle, scaleCenterX, scaleCenterY);
+        moveMatrix.postRotate(-(float) rotateAngle, scaleCenterX, scaleCenterY);
         moveMatrix.postScale(scale_X, scale_Y, scaleCenterX, scaleCenterY);
-        moveMatrix.postRotate((float) rAngle, scaleCenterX, scaleCenterY);
+        moveMatrix.postRotate((float) rotateAngle, scaleCenterX, scaleCenterY);
         handlingSticker.setMatrix(moveMatrix);
+
+        String logStr =
+                "direction:" + direction + "\n" +
+                        "directionWeight:" + directionWeight + "\n" +
+                        "scale_X:" + scale_X + " scale_Y:" + scale_Y + "\n" +
+                        "scaleCenterX:" + scaleCenterX + " scaleCenterY:" + scaleCenterY + "\n" +
+                        "rotateAngle:" + rotateAngle + " angle:" + angle + "\n" +
+                        "downDistance:" + downDistance + " nowDistance:" + nowDistance + "\n" +
+                        "";
+
+        LOGG.INSTANCE.error(TAG, "scaleByDirection:" + logStr);
     }
 
     protected void constrainSticker(@NonNull Sticker sticker) {
